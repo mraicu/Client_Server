@@ -1,24 +1,22 @@
 package util;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import entity.Participant;
 import lombok.Getter;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Client {
     private static final double DELTA_X = 1;
+    Util util = new Util();
 
     @Getter
     private final ExecutorService executor;
@@ -87,7 +85,7 @@ public class Client {
                         .append(",").append(participant.getPunctaj());
             }
 
-            output.write((command+"\n").getBytes());
+            output.write((command + "\n").getBytes());
             output.flush();
 
             byte[] responseBuffer = new byte[1024];
@@ -147,18 +145,16 @@ public class Client {
                     String[] parts = line.split("[=,{}]");
                     String countryId = parts[4].replace("'", "").trim(); // Extract 'Germania'
                     int score = Integer.parseInt(parts[2].trim());       // Extract 4731
-                    System.out.println(countryId + " " + score +
+                    util.log(countryId + " " + score +
                             ", de la threadul cu id = " + Thread.currentThread().getId());
                 } else {
                     System.out.println("Unexpected response format: " + line);
                 }
             }
-
         } catch (IOException e) {
             System.out.println("Error getting clasament: " + e.getMessage());
         }
     }
-
 
 
     public void getClasamentFinal() {
@@ -167,19 +163,20 @@ public class Client {
              InputStream input = socket.getInputStream()) {
 
             String command = "REQUEST_FINAL_RANKING";
-            output.write((command+"\n").getBytes());
+            output.write((command + "\n").getBytes());
             output.flush();
 
             byte[] fileBuffer = input.readAllBytes();
-            saveToFile("clasamentFinal" + Thread.currentThread().getId() + ".txt", fileBuffer);
+//            saveToFile("clasamentFinal" + Thread.currentThread().getId() + ".txt", fileBuffer);
 
+            saveFile("clasamentFinal" + Thread.currentThread().getId() + ".zip", Objects.requireNonNull(fileBuffer));
         } catch (IOException e) {
             System.out.println("Error getting clasament final: " + e.getMessage());
         }
     }
 
 
-    private void saveToFile(String fileName, byte[] fileContent) {
+    private void saveFile(String fileName, byte[] fileContent) {
         try {
             Path filePath = Paths.get(fileName);
             Files.write(filePath, fileContent);
