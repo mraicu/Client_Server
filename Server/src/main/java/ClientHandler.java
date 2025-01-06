@@ -28,13 +28,9 @@ public class ClientHandler implements Runnable {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
              PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
 
-            String line = in.readLine();
-            util.log("Socket input from client: " + line);
-            while (line != null) {
-                if (line.equals("END")) {
-                    util.log("Received termination signal.");
-                    break;
-                }
+
+            String line;
+            while ((line = in.readLine()) != null)  {
                 if (line.startsWith( "ADD_CONTESTANT")) {
                     util.log("ADD_CONTESTANT: " + line);
                     handleAddContestant(line, out);
@@ -42,7 +38,6 @@ public class ClientHandler implements Runnable {
                     util.log("REQUEST_PARTIAL_RANKING");
                     handlePartialRanking(out);
                 } else if (line.startsWith("REQUEST_FINAL_RANKING")) {
-
                     handleFinalRanking(out);
                 } else if (line.startsWith("RECEIVE_FILES")) {
                     sendFinalFilesToClient();
@@ -64,25 +59,41 @@ public class ClientHandler implements Runnable {
 
     private void handleAddContestant(String line, PrintWriter out) throws InterruptedException {
         String[] parts = line.split(",");
-        if (parts.length == 61) { // 1 for the command and 3 for each of the 20 contestants
-            util.log("Received 20 contestants from country " + parts[3]);
-            for (int i = 1; i < parts.length; i += 3) {
-                String countryId = parts[i];
-                String contestantId = parts[i + 1];
-                int score = Integer.parseInt(parts[i + 2]);
 
-                if (!blackList.contains(countryId)) {
-                    Concurent concurent = new Concurent(contestantId, score, countryId);
-                    queue.enqueue(concurent);
-                } else {
-                    out.println("COUNTRY_BLACKLISTED");
-                }
-            }
-            out.println("CHUNK_ADDED");
-        } else {
+        if (parts.length < 4 || (parts.length - 1) % 3 != 0) {
             out.println("INVALID_FORMAT");
+            return;
         }
+
+        util.log("Processing contestants from line...");
+
+        int contestantCount = (parts.length - 1) / 3; // Exclude the command part
+        util.log("Received " + contestantCount + " contestants.");
+
+        for (int i = 1; i < parts.length; i += 3) {
+            String countryId = parts[i];
+            String contestantId = parts[i + 1];
+
+            int score;
+            try {
+                score = Integer.parseInt(parts[i + 2]);
+            } catch (NumberFormatException e) {
+                util.log("Invalid score format for contestant: " + parts[i + 2]);
+                out.println("INVALID_SCORE");
+                continue;
+            }
+
+            if (!blackList.contains(countryId)) {
+                Concurent concurent = new Concurent(contestantId, score, countryId);
+                queue.enqueue(concurent);
+            } else {
+                out.println("COUNTRY_BLACKLISTED");
+            }
+        }
+
+        out.println("CHUNK_ADDED");
     }
+
 
     private void handlePartialRanking(PrintWriter out) {
         long currentTime = System.currentTimeMillis();
@@ -101,7 +112,6 @@ public class ClientHandler implements Runnable {
                 ex.printStackTrace();
                 out.println("RANKING_ERROR");
             } else {
-                out.println("PARTIAL_RANKING");
                 // Send each ranking entry to the client
                 for (CountryScore score : ranking) {
                     out.println(score);
@@ -146,7 +156,7 @@ public class ClientHandler implements Runnable {
                     out.println("RANKING_ERROR");
                     util.log("Error while calculating final ranking");
                 } else {
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\Users\\mraic\\OneDrive\\Desktop\\Scoala\\CS\\5th_sem\\Parallel_and_Distributed_Programming\\P1\\Client-Server\\Server\\src\\main\\java\\Clasament.txt"))) {
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter("file-path"))) { //TODO
                         for (CountryScore score : ranking) {
                             writer.write(score.toString());
                             writer.newLine();

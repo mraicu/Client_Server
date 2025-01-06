@@ -4,6 +4,9 @@ public class CountryScore {
     private int score;
     private String countryId;
 
+    public CountryScore() {
+    }
+
     public CountryScore(int score, String countryId) {
         this.score = score;
         this.countryId = countryId;
@@ -23,5 +26,13 @@ public class CountryScore {
 
     public void setCountryId(String countryId) {
         this.countryId = countryId;
+    }
+
+    @Override
+    public String toString() {
+        return "CountryScore{" +
+                "score=" + score +
+                ", countryId='" + countryId + '\'' +
+                '}';
     }
 }

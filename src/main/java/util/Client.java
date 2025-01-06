@@ -50,13 +50,13 @@ public class Client {
                     }
                 }
                 getClasament();
-//                getClasamentFinal();
+                getClasamentFinal();
                 latch.countDown();
             });
         }
         try {
             latch.await();
-            sendTerminationSignal();
+//            sendTerminationSignal();
         } catch (InterruptedException e) {
             System.out.println("Interrupted while waiting for threads to finish!");
         }
@@ -132,23 +132,34 @@ public class Client {
              InputStream input = socket.getInputStream()) {
 
             String command = "REQUEST_PARTIAL_RANKING";
-            output.write((command+"\n").getBytes());
+            output.write((command + "\n").getBytes());
             output.flush();
 
             byte[] responseBuffer = new byte[4096];
             int bytesRead = input.read(responseBuffer);
-            String responseJson = new String(responseBuffer, 0, bytesRead);
+            String fullResponse = new String(responseBuffer, 0, bytesRead);
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            List<CountryScore> ranking = objectMapper.readValue(responseJson, new TypeReference<>() {});
-
-            ranking.forEach(score -> System.out.println(score.getCountryId() + " " + score.getScore() +
-                    ", de la threadul cu id = " + Thread.currentThread().getId()));
+            // Process each line
+            String[] lines = fullResponse.split("\n");
+            for (String line : lines) {
+                if (line.startsWith("CountryScore")) {
+                    // Example line: CountryScore{score=4731, countryId='Germania'}
+                    String[] parts = line.split("[=,{}]");
+                    String countryId = parts[4].replace("'", "").trim(); // Extract 'Germania'
+                    int score = Integer.parseInt(parts[2].trim());       // Extract 4731
+                    System.out.println(countryId + " " + score +
+                            ", de la threadul cu id = " + Thread.currentThread().getId());
+                } else {
+                    System.out.println("Unexpected response format: " + line);
+                }
+            }
 
         } catch (IOException e) {
             System.out.println("Error getting clasament: " + e.getMessage());
         }
     }
+
+
 
     public void getClasamentFinal() {
         try (Socket socket = new Socket("localhost", PORT);
@@ -156,7 +167,7 @@ public class Client {
              InputStream input = socket.getInputStream()) {
 
             String command = "REQUEST_FINAL_RANKING";
-            output.write(command.getBytes());
+            output.write((command+"\n").getBytes());
             output.flush();
 
             byte[] fileBuffer = input.readAllBytes();

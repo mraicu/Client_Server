@@ -30,8 +30,8 @@ public class Main {
 
     public static void main(String[] args) {
         Util util = new Util();
-        int THREAD_POOL_SIZE_R = 10;
-        int THREAD_POOL_SIZE_W = 10;
+        int THREAD_POOL_SIZE_R = 4;
+        int THREAD_POOL_SIZE_W = 2;
 
         util.log("-----------------------------------------------------");
         Server server = new Server(THREAD_POOL_SIZE_R, THREAD_POOL_SIZE_W);
