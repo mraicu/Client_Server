@@ -2,6 +2,8 @@ import java.io.*;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -11,9 +13,11 @@ public class ClientHandler implements Runnable {
     private final FineGrainLinkedList clasament;
     private final ArrayList<String> blackList;
     private final int threadCount;
-    private static final HashMap<String, CompletableFuture<List<CountryScore>>> countryRankingsCache = new HashMap<>();
+//    private static final HashMap<String, CompletableFuture<List<CountryScore>>> countryRankingsCache = new HashMap<>();
+    private static final ConcurrentHashMap<String, CompletableFuture<List<CountryScore>>> countryRankingsCache = new ConcurrentHashMap<>();
+
     private static final long CACHE_EXPIRATION_TIME = 50000;
-    private static long lastRankingCalculationTime = 0;
+    private static final AtomicLong lastRankingCalculationTime = new AtomicLong(0);
     Util util = new Util();
 
     public ClientHandler(Socket clientSocket, CustomQueue<Concurent> queue, FineGrainLinkedList clasament, ArrayList<String> blackList, int threadCount) {
@@ -98,10 +102,10 @@ public class ClientHandler implements Runnable {
     private void handlePartialRanking(PrintWriter out) {
         long currentTime = System.currentTimeMillis();
 
-        if (currentTime - lastRankingCalculationTime > CACHE_EXPIRATION_TIME) {
+        if (currentTime - lastRankingCalculationTime.get() > CACHE_EXPIRATION_TIME) {
             CompletableFuture<List<CountryScore>> rankingFuture = CompletableFuture.supplyAsync(this::calculateCountryRanking);
             countryRankingsCache.put("partial", rankingFuture);
-            lastRankingCalculationTime = currentTime;
+            lastRankingCalculationTime.set(currentTime);
         }
 
         CompletableFuture<List<CountryScore>> rankingFuture = countryRankingsCache.get("partial");

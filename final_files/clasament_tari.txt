@@ -1,0 +1,3 @@
+CountryScore{score=4316, countryId='Romania'}
+CountryScore{score=4287, countryId='Germania'}
+CountryScore{score=3233, countryId='Italia'}

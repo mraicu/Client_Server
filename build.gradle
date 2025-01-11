@@ -22,3 +22,35 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+task runClient1(type: JavaExec) {
+    mainClass = 'Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args '1'
+}
+
+task runClient2(type: JavaExec) {
+    mainClass = 'Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args '2'
+}
+
+
+task runClient3(type: JavaExec) {
+    mainClass = 'Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args '3'
+}
+
+task runClient4(type: JavaExec) {
+    mainClass = 'Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args '4'
+}
+
+
+task runClient5(type: JavaExec) {
+    mainClass = 'Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args '5'
+}

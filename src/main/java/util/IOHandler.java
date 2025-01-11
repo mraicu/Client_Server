@@ -11,14 +11,13 @@ import java.util.Objects;
 
 public class IOHandler {
 
-    public static List<String> generateFileNames() {
+    public static List<String> generateFileNames(int countryNum) {
         List<String> files = new LinkedList<>();
         String format = "Rezultate_C%d_P%d.txt";
-        for (int i = 1; i <= Constants.NUMBER_OF_THREADS; ++i) {
             for (int j = 1; j <= 10; ++j) {
-                files.add(String.format(format, i, j));
+                files.add(String.format(format, countryNum, j));
             }
-        }
+
         return files;
     }
     public static List<Participant> readParticipants(List<String> files) {
