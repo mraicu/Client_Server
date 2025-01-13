@@ -16,7 +16,7 @@ public class Consumer extends Thread{
         while (true) {
             try {
                 Concurent concurent = queue.dequeue();
-                if (concurent == null) {
+                if (concurent.getId() == "null") {
                     break;
                 }
                 processConcurent(concurent);

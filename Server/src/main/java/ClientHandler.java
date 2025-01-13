@@ -50,7 +50,11 @@ public class ClientHandler implements Runnable {
                 }
             }
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+            if (clientSocket.isClosed()) {
+                System.out.println("Socket is closed, stopping the handler.");
+            } else {
+                e.printStackTrace();
+            }
         } finally {
             try {
                 clientSocket.close();
@@ -144,7 +148,7 @@ public class ClientHandler implements Runnable {
     private void handleFinalRanking(PrintWriter out) {
         for (int i = 0; i < threadCount; i++) {
             try {
-                queue.enqueue(null);
+                queue.enqueue(new Concurent("null", -1, "null"));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

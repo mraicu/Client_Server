@@ -28,14 +28,14 @@ public class Server {
     }
 
     public void start() {
-        for (int i = 0; i < contestantAdderThreadPoolSize; i++) {
-            contestantAdderPool.execute(new Consumer(clasament, queue, blackList));
-        }
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
 
                 Socket clientSocket = serverSocket.accept();
                 util.log("The socket is connected: " + clientSocket.isConnected());
+                for (int i = 0; i < contestantAdderThreadPoolSize; i++) {
+                    contestantAdderPool.execute(new Consumer(clasament, queue, blackList));
+                }
                 clientHandlerPool.execute(new ClientHandler(clientSocket, queue, clasament, blackList, clientHandlerThreadPoolSize));
             }
         } catch (IOException e) {
