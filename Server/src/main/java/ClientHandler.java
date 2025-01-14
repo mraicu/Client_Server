@@ -16,7 +16,7 @@ public class ClientHandler implements Runnable {
 //    private static final HashMap<String, CompletableFuture<List<CountryScore>>> countryRankingsCache = new HashMap<>();
     private static final ConcurrentHashMap<String, CompletableFuture<List<CountryScore>>> countryRankingsCache = new ConcurrentHashMap<>();
 
-    private static final long CACHE_EXPIRATION_TIME = 50000;
+    private static final long CACHE_EXPIRATION_TIME = 1000;
     private static final AtomicLong lastRankingCalculationTime = new AtomicLong(0);
     Util util = new Util();
 
