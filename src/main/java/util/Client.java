@@ -137,11 +137,10 @@ public class Client {
             int bytesRead = input.read(responseBuffer);
             String fullResponse = new String(responseBuffer, 0, bytesRead);
 
-            // Process each line
             String[] lines = fullResponse.split("\n");
             for (String line : lines) {
                 if (line.startsWith("CountryScore")) {
-                    // Example line: CountryScore{score=4731, countryId='Germania'}
+                    // Ex: CountryScore{score=4731, countryId='Germania'}
                     String[] parts = line.split("[=,{}]");
                     String countryId = parts[4].replace("'", "").trim(); // Extract 'Germania'
                     int score = Integer.parseInt(parts[2].trim());       // Extract 4731
@@ -167,7 +166,6 @@ public class Client {
             output.flush();
 
             byte[] fileBuffer = input.readAllBytes();
-//            saveToFile("clasamentFinal" + Thread.currentThread().getId() + ".txt", fileBuffer);
 
             saveFile("clasamentFinal" + Thread.currentThread().getId() + ".zip", Objects.requireNonNull(fileBuffer));
         } catch (IOException e) {

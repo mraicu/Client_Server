@@ -21,7 +21,6 @@ public class Main {
         Client client = new Client(concurenti);
         client.startSending();
 
-
         double end = System.currentTimeMillis();
 
         System.out.println(end - start);
